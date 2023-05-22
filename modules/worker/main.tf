@@ -35,22 +35,23 @@ resource "aws_iam_role_policy_attachment" "amazon_ssm_managed_instance_core" {
 }
 
 resource "aws_eks_node_group" "private_nodes" {
-  cluster_name    = module.create_cluster.aws_eks_cluster.demo.name
+  cluster_name    = var.aws_eks_cluster_name[0]
   node_group_name = "private-nodes"
   node_role_arn   = aws_iam_role.nodes.arn
 
   # Single subnet to avoid data transfer charges while testing.
   subnet_ids = [
-    module.create_vpc.aws_subnet.private_ap_south_2a.id
+    var.private_subnet_ids[0],
+    var.private_subnet_ids[1]
   ]
 
   capacity_type  = "ON_DEMAND"
-  instance_types = ["t3a.xlarge"]
+  instance_types = ["t2.micro"]
 
   scaling_config {
     desired_size = 2
-    max_size     = 5
-    min_size     = 0
+    max_size     = 2
+    min_size     = 2
   }
 
   update_config {
